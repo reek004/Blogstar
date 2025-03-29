@@ -2,17 +2,22 @@
 package config
 
 import (
-	"os"
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	GeminiAPIKey   string   `yaml:"gemini_api_key"`
-	DefaultModels  []string `yaml:"default_models"`
-	MaxTokens      int      `yaml:"max_tokens"`
+	GeminiAPIKey  string    `yaml:"gemini_api_key"`
+	DefaultModels []string  `yaml:"default_models"`
+	MaxTokens     int       `yaml:"max_tokens"`
+	RateLimit     RateLimit `yaml:"rate_limit"`
+}
+
+type RateLimit struct {
+	RequestsPerMinute int `yaml:"requests_per_minute"`
 }
 
 func LoadConfig() *Config {
@@ -46,6 +51,11 @@ func LoadConfig() *Config {
 			"gemini-pro",
 			"gemini-1.5-pro",
 		}
+	}
+
+	// Default rate limiting if not specified
+	if config.RateLimit.RequestsPerMinute == 0 {
+		config.RateLimit.RequestsPerMinute = 5 // Default: 5 requests per minute
 	}
 
 	return &config

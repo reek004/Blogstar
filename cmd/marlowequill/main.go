@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/reek004/MarloweQuill/internal/api"
 	"github.com/reek004/MarloweQuill/internal/config"
-	"github.com/reek004/MarloweQuill/internal/content"
+	"github.com/reek004/MarloweQuill/internal/server"
 )
 
 func main() {
@@ -17,52 +18,17 @@ func main() {
 	geminiClient := api.NewGeminiClient(cfg)
 	defer geminiClient.Close()
 
-	// Create content generator
-	generator := content.NewContentGenerator(geminiClient)
+	// Create and start HTTP server
+	srv := server.NewServer(geminiClient)
 
-	// Generate different types of content
-	contentTypes := []content.GenerationOptions{
-		{
-			ContentType: content.BlogPost,
-			Topic:       "Artificial Intelligence in 2024",
-			Tone:        "professional",
-			Length:      500,
-		},
-		{
-			ContentType: content.SocialMedia,
-			Topic:       "Climate Change Awareness",
-			Tone:        "motivational",
-			Length:      100,
-		},
+	// Get port from environment or use default
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // Default port
 	}
 
-	// Generate and save multiple content types
-	for _, opts := range contentTypes {
-		fmt.Printf("Generating %s content...\n", opts.ContentType)
-		
-		generatedContent, err := generator.GenerateContent(opts)
-		if err != nil {
-			log.Printf("Error generating %s content: %v", opts.ContentType, err)
-			continue
-		}
-
-		// Save the generated content
-		filename, err := generator.SaveContent(generatedContent, opts.ContentType)
-		if err != nil {
-			log.Printf("Error saving %s content: %v", opts.ContentType, err)
-			continue
-		}
-
-		fmt.Printf("Generated %s content saved to %s\n", opts.ContentType, filename)
-		fmt.Println("Content Preview:")
-		fmt.Println(generatedContent[:min(500, len(generatedContent))] + "...")
+	fmt.Printf("Starting MarloweQuill web server on port %s...\n", port)
+	if err := srv.Start(port); err != nil {
+		log.Fatalf("Server error: %v", err)
 	}
-}
-
-// Helper function to get minimum of two integers
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

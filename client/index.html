@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MarloweQuill Content Generator</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container">
+        <h1>MarloweQuill Content Generator</h1>
+        
+        <div id="status"></div>
+        
+        <div class="form-container">
+            <div class="form-group">
+                <label for="contentType">Content Type: <span class="required">*</span></label>
+                <select id="contentType">
+                    <option value="blog_post">Blog Post</option>
+                    <option value="article">Article</option>
+                    <option value="social_media">Social Media</option>
+                    <option value="script">Script</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="topic">Topic: <span class="required">*</span></label>
+                <input type="text" id="topic" placeholder="Enter a topic">
+                <div id="topicError" class="error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="tone">Tone:</label>
+                <input type="text" id="tone" placeholder="e.g., professional, casual, formal">
+            </div>
+            
+            <div class="form-group">
+                <label for="length">Length (words):</label>
+                <input type="number" id="length" value="500" min="10">
+            </div>
+            
+            <div class="form-group">
+                <label for="additionalContext">Additional Context:</label>
+                <textarea id="additionalContext" rows="4" placeholder="Any additional context or requirements"></textarea>
+            </div>
+            
+            <button id="generateBtn" type="button">Generate Content</button>
+            <span id="loading" class="loading">Generating content, please wait...</span>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="preview">Content Preview</div>
+            <div class="tab" data-tab="response">Full Response</div>
+        </div>
+        
+        <div id="previewTab" class="tab-content active">
+            <h2>Content Preview:</h2>
+            <pre id="result">Results will appear here...</pre>
+        </div>
+        
+        <div id="responseTab" class="tab-content">
+            <h2>Full JSON Response:</h2>
+            <pre id="jsonResponse">JSON response will appear here...</pre>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

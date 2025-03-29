@@ -1,1 +1,4 @@
 .env
+generated_content/
+node_modules/
+.DS_Store
