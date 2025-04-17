@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  email     String    @unique
+  name      String?
+  tier      String    @default("free")
+  apiKey    String    @unique
+  contents  Content[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Content {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  type             String
+  topic            String
+  tone            String?
+  length          Int?
+  content         String
+  additionalContext String?
+  filename        String?
+  userId          String   @db.ObjectId
+  user            User     @relation(fields: [userId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model RateLimit {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  requests    Int      @default(0)
+  windowStart DateTime @default(now())
+
+  @@index([userId, windowStart])
+}
