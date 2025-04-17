@@ -1,8 +1,8 @@
-# MarloweQuill: AI-Powered Content Generation Platform
+# Blogstar: AI-Powered Content Generation Platform
 
-MarloweQuill is a powerful content generation platform that leverages Google's Gemini AI to create various types of content including blog posts, articles, social media posts, and scripts. The application provides both a web interface and API endpoints for seamless content generation.
+Blogstar is a powerful content generation platform that leverages Google's Gemini AI to create various types of content including blog posts, articles, social media posts, and scripts. The application provides both a web interface and API endpoints for seamless content generation.
 
-##  Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
@@ -13,9 +13,9 @@ MarloweQuill is a powerful content generation platform that leverages Google's G
 - [Usage](#usage)
 - [Rate Limiting](#rate-limiting)
 
-##  Overview
+## Overview
 
-MarloweQuill provides an intuitive interface for generating high-quality content using Google's Gemini AI models. Users can specify content type, topic, tone, length, and additional context to get customized content. The application handles API interactions, content generation, and file storage, making it easy to create and manage various content pieces.
+Blogstar provides an intuitive interface for generating high-quality content using Google's Gemini AI models. Users can specify content type, topic, tone, length, and additional context to get customized content. The application handles API interactions, content generation, and file storage, making it easy to create and manage various content pieces.
 
 ## Features
 
@@ -23,33 +23,34 @@ MarloweQuill provides an intuitive interface for generating high-quality content
 - **Customization Options**: Specify topic, tone, length, and additional context
 - **Web Interface**: User-friendly client application for content creation
 - **API Access**: REST API endpoints for programmatic content generation
-- **Rate Limiting**: Built-in protection against API abuse
+- **Rate Limiting**: Built-in protection against API abuse with tiered access
 - **Content Storage**: Automatic saving of generated content to files
 - **Error Handling**: Robust error handling and user feedback
+- **Database Integration**: Prisma-based MongoDB storage for content and users
 
-##  Folder Structure
+## Folder Structure
 
 ```
-/home/reek/Projects/MarloweQuill/
-├── cmd/
-│   ├── marlowequill/     # Main application entry point
-│   └── test/             # Test utilities
-├── internal/
-│   ├── api/              # Gemini API integration
-│   ├── config/           # Configuration management
-│   ├── content/          # Content generation logic
-│   ├── middleware/       # HTTP middleware (rate limiting)
-│   └── server/           # HTTP server implementation
-├── client/               # Web client application
-│   ├── css/              # Stylesheets
-│   ├── js/               # JavaScript code
-│   └── index.html        # Main HTML page
-├── configs/              # Configuration files
-├── generated_content/    # Output directory for generated content
-└── README.md             # Project documentation
+/Blogstar/
+├── src/                 # TypeScript source code
+│   ├── api/            # Gemini API integration
+│   ├── content/        # Content generation logic
+│   ├── middleware/     # Express middleware
+│   ├── services/       # Database services
+│   ├── lib/           # Shared utilities
+│   ├── config.ts      # Configuration management
+│   └── server.ts      # Main server implementation
+├── client/             # Web client application
+│   ├── css/           # Stylesheets
+│   ├── js/            # Client-side JavaScript
+│   └── index.html     # Main HTML page
+├── prisma/            # Database schema and migrations
+├── configs/           # Configuration files
+├── generated_content/ # Output directory for content
+└── dist/             # Compiled JavaScript output
 ```
 
-##  API Endpoints
+## API Endpoints
 
 ### `POST /api/generate`
 
@@ -77,7 +78,11 @@ Generates content based on the provided parameters.
 ```json
 {
   "content": "Generated content text goes here...",
-  "filename": "generated_content/blog_post_20250329_104515.txt"
+  "filename": "generated_content/blog_post_20250329_104515.txt",
+  "rateLimit": {
+    "remaining": 4,
+    "reset": 1650123456
+  }
 }
 ```
 
@@ -90,43 +95,52 @@ Checks if the API server is running.
 Server is running
 ```
 
-##  Setup & Installation
+## Setup & Installation
 
 ### Prerequisites
 
-- Go 1.16 or higher
+- Node.js 18 or higher
+- PostgreSQL database
 - Google Gemini API key
 
 ### Installation Steps
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/reek004/MarloweQuill.git
-   cd MarloweQuill
+   git clone https://github.com/yourusername/Blogstar.git
+   cd Blogstar
    ```
 
-2. Create a `.env` file in the root directory:
+2. Install dependencies:
+   ```bash
+   npm install
    ```
+
+3. Create a `.env` file:
+   ```
+   DATABASE_URL="postgresql://username:password@localhost:5432/blogstar?schema=public"
    GEMINI_API_KEY=your_gemini_api_key_here
    ```
 
-3. Build the application:
+4. Initialize the database:
    ```bash
-   go build -o marlowequill ./cmd/marlowequill
+   npx prisma migrate dev
    ```
 
-4. Run the server:
+5. Build and start the server:
    ```bash
-   ./marlowequill
+   npm run build
+   npm start
    ```
 
-5. Access the web client:
-   - Open `client/index.html` in a web browser
-   - Alternatively, serve the client directory using a web server
+6. For development:
+   ```bash
+   npm run dev
+   ```
 
-## ⚙️ Configuration
+## Configuration
 
-Configuration is managed through the `configs/config.yaml` file:
+Configuration is managed through `configs/config.yaml`:
 
 ```yaml
 gemini_api_key: ${GEMINI_API_KEY}
@@ -134,19 +148,21 @@ default_models:
   - gemini-1.5-pro
 max_tokens: 1024
 rate_limit:
-  requests_per_minute: 5
+  requests_per_minute: 3
+  tiers:
+    free: 3
+    basic: 6
+    premium: 9
+  burst: true
+  delay_after: 3
+  delay_ms: 1000
 ```
-
-- `gemini_api_key`: API key for Gemini (can be overridden via environment variable)
-- `default_models`: List of AI models to try in order of preference
-- `max_tokens`: Maximum tokens for content generation
-- `rate_limit.requests_per_minute`: Maximum API requests allowed per minute per IP
 
 ## 🚀 Usage
 
 ### Using the Web Interface
 
-1. Open the MarloweQuill client in a web browser
+1. Open the Blogstar client in a web browser
 2. Select the content type (blog post, article, social media, script)
 3. Enter the required topic and optional parameters
 4. Click "Generate Content"
@@ -160,12 +176,12 @@ rate_limit:
 1. **Serve the client files**: You can use any web server to serve the files in the `client` directory. For example:
    ```bash
    # Using Python's built-in HTTP server
-   cd /path/to/MarloweQuill/client
+   cd /path/to/Blogstar/client
    python3 -m http.server 8000
    
    # Or using Node.js with http-server
    npm install -g http-server
-   cd /path/to/MarloweQuill/client
+   cd /path/to/Blogstar/client
    http-server -p 8000
    ```
 
@@ -174,7 +190,7 @@ rate_limit:
    http://localhost:8000
    ```
 
-3. **Ensure the API is running**: The client needs to connect to the MarloweQuill API server. Make sure the server is running on port 8080 (default) or update the `API_URL` in `client/js/app.js` if using a different port.
+3. **Ensure the API is running**: The client needs to connect to the Blogstar API server. Make sure the server is running on port 8080 (default) or update the `API_URL` in `client/js/app.js` if using a different port.
 
 #### Using the Interface
 
@@ -216,8 +232,8 @@ rate_limit:
 
 #### Troubleshooting
 
-- **API Connection Error**: If you see "Cannot connect to API server," make sure the MarloweQuill server is running
-- **Rate Limit Exceeded**: The default setting limits requests to 5 per minute per IP; wait and try again
+- **API Connection Error**: If you see "Cannot connect to API server," make sure the Blogstar server is running
+- **Rate Limit Exceeded**: The default setting limits requests to 3 per minute per IP; wait and try again
 - **Content Not Generated**: Check the API response tab for detailed error messages
 - **CORS Issues**: If you're accessing the client from a different domain, you may need to adjust the CORS settings in the server
 
@@ -235,22 +251,25 @@ curl -X POST http://localhost:8080/api/generate \
   }'
 ```
 
-##  Rate Limiting
+## Rate Limiting
 
-MarloweQuill implements rate limiting to prevent API abuse:
+Blogstar implements tiered rate limiting:
 
-- Default: 5 requests per minute per IP address
-- Rate limit can be configured in `config.yaml`
-- When exceeded, the server returns HTTP 429 with Retry-After header
-- Client displays user-friendly messages for rate limiting errors
+- **Free Tier**: 3 requests per minute
+- **Basic Tier**: 6 requests per minute
+- **Premium Tier**: 9 requests per minute
+- Burst protection with configurable delay
+- HTTP 429 response with Retry-After header when limit exceeded
 
-##  Security Considerations
+## Security Considerations
 
-- The API server is configured with CORS to allow cross-origin requests
-- Rate limiting helps prevent denial-of-service attacks
-- API keys are stored in environment variables for security
+- CORS enabled for cross-origin requests
+- Rate limiting prevents API abuse
+- Environment variables for sensitive data
+- Database passwords and API keys stored securely
+- Type-safe database operations with Prisma
 
-## Contribution & Development
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -259,3 +278,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
